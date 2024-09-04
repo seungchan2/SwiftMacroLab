@@ -45,4 +45,30 @@ final class TestMacroTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
+    
+    func testInitializer() throws {
+        assertMacroExpansion(
+          """
+          @ChanStorage
+          struct Seungchan {
+              let name: String
+              let age: Int
+          }
+          """,
+          expandedSource:
+          """
+          struct Seungchan {
+              let name: String
+              let age: Int
+          
+          public init(from decoder: Decoder) throws {
+              let container = try.decoder.container(keyedBy: CodingKeys.self)
+              let name = try container.decode(String.self, forKey: .name)
+              let age = try container.decode(Int.self, forKey: .age)
+            }
+          }
+          """,
+          macros: ["ChanStorage": ChanStorage.self]
+        )
+    }
 }
