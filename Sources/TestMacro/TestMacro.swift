@@ -10,6 +10,6 @@
 @freestanding(expression)
 public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "TestMacroMacros", type: "StringifyMacro")
 
-@attached(extension, conformances: Decodable)
-@attached(member, names: named(init))
+@attached(extension, conformances: Codable)
+@attached(member, names: arbitrary)
 public macro InitDecodable() = #externalMacro(module: "TestMacroMacros", type: "InitDecodable")
