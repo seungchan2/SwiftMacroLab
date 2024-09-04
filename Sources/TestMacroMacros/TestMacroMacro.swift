@@ -91,7 +91,7 @@ extension InitDecodable: ExtensionMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        return [try ExtensionDeclSyntax("extension \(type): Codable {}")]
+        return [try ExtensionDeclSyntax("extension \(type): Decodable {}")]
     }
 }
 
