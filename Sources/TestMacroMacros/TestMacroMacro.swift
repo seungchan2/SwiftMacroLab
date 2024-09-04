@@ -29,11 +29,11 @@ public struct StringifyMacro: ExpressionMacro {
 struct TestMacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         StringifyMacro.self,
-        ChanStorage.self
+        InitDecodable.self
     ]
 }
 
-public struct ChanStorage: MemberMacro {
+public struct InitDecodable: MemberMacro {
     public static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
@@ -83,7 +83,7 @@ public struct ChanStorage: MemberMacro {
     }
 }
 
-extension ChanStorage: ExtensionMacro {
+extension InitDecodable: ExtensionMacro {
     public static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,

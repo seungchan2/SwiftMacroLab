@@ -12,4 +12,4 @@ public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "T
 
 @attached(extension, conformances: Decodable)
 @attached(member, names: named(init))
-public macro ChanStorage() = #externalMacro(module: "TestMacroMacros", type: "ChanStorage")
+public macro InitDecodable() = #externalMacro(module: "TestMacroMacros", type: "InitDecodable")
