@@ -24,7 +24,7 @@ public struct InitDecodable: MemberMacro {
             .filter {
                 $0.accessorBlock == nil
             }
-        
+
         guard !storedMemberBindingList.isEmpty else { return [] }
         
         let assignmentStmts = storedMemberBindingList
@@ -32,18 +32,18 @@ public struct InitDecodable: MemberMacro {
                 guard let nameToken = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else {
                     return nil
                 }
-                
+
                 guard let typeToken = binding.typeAnnotation?.as(TypeAnnotationSyntax.self)?.type else {
                     return nil
                 }
-                
+
                 if let optionalTyped = typeToken.as(OptionalTypeSyntax.self) {
-                    let optionalType = optionalTyped.wrappedType.as(IdentifierTypeSyntax.self)?.name.text ?? "Unknown"
+                    let optionalType = optionalTyped.wrappedType.as(SimpleTypeIdentifierSyntax.self)?.name.text ?? "Unknown"
                     return #"self.\#(nameToken) = try container.decodeIfPresent(\#(optionalType).self, forKey: .\#(nameToken))"#
-                } else if let simpleType = typeToken.as(IdentifierTypeSyntax.self)?.name.text {
+                } else if let simpleType = typeToken.as(SimpleTypeIdentifierSyntax.self)?.name.text {
                     return #"self.\#(nameToken) = try container.decode(\#(simpleType).self, forKey: .\#(nameToken))"#
                 }
-                
+
                 return nil
             }
         
@@ -52,20 +52,7 @@ public struct InitDecodable: MemberMacro {
                 guard let nameToken = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else {
                     return nil
                 }
-                
-                guard let typeToken = binding.typeAnnotation?.as(TypeAnnotationSyntax.self)?.type else {
-                    return nil
-                }
-                
-                if let optionalTyped = typeToken.as(OptionalTypeSyntax.self) {
-                    let optionalType = optionalTyped.wrappedType.as(IdentifierTypeSyntax.self)?.name.text ?? "Unknown"
-                    return #"case \#(nameToken) = "\#(nameToken)""#
-                } else if let simpleType = typeToken.as(IdentifierTypeSyntax.self)?.name.text {
-                    return #"case \#(nameToken) = "\#(nameToken)""#
-                }
-                
-                return nil
-                
+                return #"case \#(nameToken) = "\#(nameToken)""#
             }
         
         let result: DeclSyntax =
@@ -84,16 +71,3 @@ public struct InitDecodable: MemberMacro {
         ]
     }
 }
-
-extension InitDecodable: ExtensionMacro {
-    public static func expansion(
-        of node: AttributeSyntax,
-        attachedTo declaration: some DeclGroupSyntax,
-        providingExtensionsOf type: some TypeSyntaxProtocol,
-        conformingTo protocols: [TypeSyntax],
-        in context: some MacroExpansionContext
-    ) throws -> [ExtensionDeclSyntax] {
-        return [try ExtensionDeclSyntax("extension \(type): Codable {}")]
-    }
-}
-
