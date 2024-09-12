@@ -16,13 +16,15 @@ public struct InitDecodable: MemberMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
+        
         let memberList = declaration.memberBlock.members
+        
         let storedMemberBindingList = memberList
             .compactMap {
                 $0.decl.as(VariableDeclSyntax.self)?.bindings.first
             }
             .filter {
-                $0.accessorBlock == nil
+                $0.accessorBlock == nil // Computed properties가 아닌 저장된 프로퍼티만 필터링
             }
 
         guard !storedMemberBindingList.isEmpty else { return [] }
@@ -37,10 +39,13 @@ public struct InitDecodable: MemberMacro {
                     return nil
                 }
 
+                // Optional 타입 처리
                 if let optionalTyped = typeToken.as(OptionalTypeSyntax.self) {
-                    let optionalType = optionalTyped.wrappedType.as(SimpleTypeIdentifierSyntax.self)?.name.text ?? "Unknown"
+                    let optionalType = optionalTyped.wrappedType.as(IdentifierTypeSyntax.self)?.name.text ?? "Unknown"
                     return #"self.\#(nameToken) = try container.decodeIfPresent(\#(optionalType).self, forKey: .\#(nameToken))"#
-                } else if let simpleType = typeToken.as(SimpleTypeIdentifierSyntax.self)?.name.text {
+                }
+                // 일반 타입 처리
+                else if let simpleType = typeToken.as(IdentifierTypeSyntax.self)?.name.text {
                     return #"self.\#(nameToken) = try container.decode(\#(simpleType).self, forKey: .\#(nameToken))"#
                 }
 
@@ -55,6 +60,7 @@ public struct InitDecodable: MemberMacro {
                 return #"case \#(nameToken) = "\#(nameToken)""#
             }
         
+        // 생성된 코드를 DeclSyntax로 반환
         let result: DeclSyntax =
         """
         enum CodingKeys: String, CodingKey {
@@ -66,6 +72,7 @@ public struct InitDecodable: MemberMacro {
             \(raw: assignmentStmts.joined(separator: "\n"))
         }
         """
+        
         return [
             result
         ]
