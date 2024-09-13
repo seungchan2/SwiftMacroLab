@@ -29,7 +29,8 @@ public struct StringifyMacro: ExpressionMacro {
 struct TestMacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         StringifyMacro.self,
-        InitializerMacro.self
+        InitializerMacro.self,
+        ToDomainMacro.self
     ]
 }
 
